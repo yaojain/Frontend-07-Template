@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>TicTacToe</title>
+</head>
+<style>
+  #bord {
+    display: flex;
+    flex-wrap: wrap;
+    width: 306px;
+  }
+
+  .cell {
+    flex-shrink: 0;
+    width: 100px;
+    height: 100px;
+    font-size: 40px;
+    text-align: center;
+    line-height: 100px;
+    background: lightgrey;
+    border: 1px solid #fff;
+    cursor: pointer;
+  }
+</style>
+
+<body>
+  <div id="bord"></div>
+  <script>
+    let parttern = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ], color = 1;
+    function show() {
+      let bord = document.getElementById('bord')
+      bord.innerHTML = ''
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          let cell = document.createElement('div')
+          cell.classList.add('cell')
+          cell.innerHTML = parttern[i][j] === 2 ? "❌" : parttern[i][j] === 1 ? "⭕️" : "";
+          bord.appendChild(cell);
+          cell.addEventListener("click", () => uesrMove(i, j));
+        }
+        bord.appendChild(document.createElement('br'));
+      }
+    }
+    
+    function uesrMove(i, j) {
+      if (parttern[i][j] === 0) {
+        parttern[i][j] = color
+
+        if (check(parttern, color)) {
+          alert(color === 2 ? "❌ is winner" : "⭕️ is winner")
+        }
+        color = 3 - color
+        show()
+        computerMove()
+        // if (willWin(parttern, color)) {
+        //   alert(color === 2 ? "❌ is winner" : "⭕️ is winner")
+        // }
+      }
+    }
+    function check(parttern, color) {
+      //检查每一行
+      for (let i = 0; i < 3; i++) {
+        let win = true;
+        for (let j = 0; j < 3; j++) {
+          if (parttern[i][j] !== color) {
+            win = false;
+          }
+        }
+        if (win)
+          return true;
+      }
+
+      //检查每一列
+      for (let i = 0; i < 3; i++) {
+        let win = true;
+        for (let j = 0; j < 3; j++) {
+          if (parttern[j][i] !== color) {
+            win = false;
+          }
+        }
+        if (win)
+          return true;
+      }
+
+      //检查反斜,横竖坐标相等
+      {
+        win = true;
+        for (let i = 0; i < 3; i++) {
+          if (parttern[i][i] !== color) {
+            win = false;
+          }
+        }
+        if (win)
+          return true;
+      }
+
+      //检查斜，横竖坐标和相等
+      {
+        win = true;
+        for (let i = 0; i < 3; i++) {
+          if (parttern[i][2 - i] !== color) {
+            win = false;
+          }
+        }
+        if (win)
+          return true;
+      }
+    }
+
+    function clone(parttern) {
+      return JSON.parse(JSON.stringify(parttern))
+    }
+
+    function willWin(parttern, color) {
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (parttern[i][j]) continue
+          let tmp = clone(parttern)
+          tmp[i][j] = color
+          if (check(tmp, color)) {
+            return [j, i]
+          }
+        }
+      }
+      return null
+    }
+
+    function bestChoice(parttern, color) {
+      let p;
+      if (p = willWin(parttern, color)) {
+        return {
+          point: p,
+          result: 1
+        }
+      }
+      let result = -2
+      let point = null
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+          if (parttern[i][j]) continue
+          let tmp = clone(parttern)
+          tmp[i][j] = color
+          let r = bestChoice(tmp, 3 - color).result
+          if (-r > result) {
+            result = -r
+            point = [j, i]
+          } 
+        }
+
+      }
+      return {
+        point: point,
+        result: point ? result : 0
+      }
+    }
+
+    function computerMove(){
+      let point = bestChoice(parttern, color).point
+      if(point)parttern[point[1]][point[0]] = color
+      if(check(parttern, color)) {
+        alert(color === 2 ? "❌ is winner" : "⭕️ is winner")
+      }
+      color = 3-color
+      show()
+    }
+    show()
+    console.log( bestChoice(parttern, color))
+  </script>
+</body>
+
+</html>
