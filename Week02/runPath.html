@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .call {
+      background: #666;
+      width: 5px;
+      height: 5px;
+      border-right: 1px solid #fff;
+      border-bottom: 1px solid #33d;
+      display: inline-block;
+    }
+
+    .map {
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      width: 600px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="map"></div>
+  <button onclick="localStorage['map'] =JSON.stringify(mapList) ">save</button>
+  <script>
+    let i = 1
+    let map = document.getElementsByClassName('map')[0];
+    let mapList = localStorage['map'] ? JSON.parse(localStorage['map']) : Array(10000).fill(0)
+
+    for (let y = 0; y < 100; y++) {
+      for (let x = 0; x < 100; x++) {
+        let call = document.createElement('div');
+        call.classList.add('call')
+        if (mapList[100 * y + x] == 1)
+          call.style.backgroundColor = 'red'
+        call.addEventListener('mousemove', function (e) {
+          if (mousedown) {
+            if (clear) {
+              call.style.backgroundColor = 'red'
+              mapList[100 * y + x] = 1
+            } else {
+              call.style.backgroundColor = 'red'
+              mapList[100 * y + x] = 1
+            }
+          }
+        })
+        map.appendChild(call)
+      }
+
+    }
+    let mousedown = false
+    let clear = false
+    document.addEventListener("mousedown", (e) => {
+      mousedown = true
+      clear = (e.which === 3)
+    })
+    document.addEventListener("mouseup", () => {
+      mousedown = false
+    })
+    document.addEventListener("contextmenu", (e) => {
+      return e.preventDefault()
+    })
+    sleep = () => {
+      return new Promise((resolve) => {
+        setTimeout(resolve, t)
+      })
+    }
+    path = async (mapList, start, end) => {
+      let queue = [start]
+
+      async function insert(x, y) {
+        if (x < 0 || x >= 100 || y < 0 || y >= 100) return  //边界不通
+        if (mapList[y * 100 + x]) return    //墙壁不通
+        await sleep(30)
+        map.children[y * 100 + x].style.backgroundColor = 'yellow'
+        mapList[y * 100 + x] = 2
+        queue.push([x, y])
+      }
+
+      while (queue.length) {
+        console.log(queue)
+        let [x, y] = queue.shift()
+        console.log(x, y)
+        console.log(queue)
+        if (x === end[0] && y === end[1]) {
+          map.children[y * 100 + x].style.backgroundColor = 'green'
+          return true
+        }
+        await insert(x - 1, y)
+        await insert(x, y - 1)
+        await insert(x + 1, y)
+        await insert(x, y + 1)
+      }
+      return false
+    }
+  </script>
+</body>
+
+</html>
