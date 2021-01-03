@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Reactive</title>
+</head>
+
+<body>
+  <script>
+    let obj = {
+      a: { c: 1 },
+      b: 2
+    }
+      ,
+      callbacks = new Map()
+      ,
+      userReavtive = []
+      ,
+      reactivity = new Map()
+    let po = reactive(obj)
+
+    effect(() => {
+      console.log(po.a.c)
+    })
+
+    function effect(callback) {
+      userReavtive = []
+      callback()
+      console.log(userReavtive)
+
+      for (const reactivity of userReavtive) {
+        if (!callbacks.has(reactivity[0])) {
+          callbacks.set(reactivity[0], new Map())
+        }
+        if (!callbacks.get(reactivity[0]).has(reactivity[1])) {
+          callbacks.get(reactivity[0]).set(reactivity[1], [])
+        }
+        callbacks.get(reactivity[0]).get(reactivity[1]).push(callback)
+      }
+    }
+
+    function reactive(object) {
+      if (reactivity.has(object)) return reactivity.get(object)
+      let proxy = new Proxy(object, {
+        set(object, prop, value) {
+          debugger
+          console.log(object, prop, value)
+          object[prop] = value
+          if (callbacks.get(object)) {
+            if (callbacks.get(object).get(prop)) {
+              for (const callback of callbacks.get(object).get(prop)) {
+                callback()
+              }
+            }
+          }
+          return object[prop]
+        },
+        get(object, prop) {
+          console.log(object, prop)
+          userReavtive.push([object, prop])
+          if (typeof object[prop] === 'object') return reactive(object[prop])
+          return object[prop]
+        }
+
+      })
+      reactivity.set(object, proxy)
+      return proxy
+    }
+  </script>
+</body>
+
+</html>

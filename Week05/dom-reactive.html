@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Reactive</title>
+</head>
+
+<body>
+  <input type="range" name="" id="r" min=0 max =255>
+  <input type="range" name="" id="g" min=0 max =255>
+  <input type="range" name="" id="b" min=0 max =255>
+  <div style="width:100px;height:100px;" id="color"></div>
+  <script>
+    let obj = {
+      r: 1,
+      g: 1,
+      b: 1
+    }
+      ,
+      callbacks = new Map()
+      ,
+      userReavtive = []
+      ,
+      reactivity = new Map()
+    let po = reactive(obj)
+
+    effect(() => {
+     document.getElementById('r').value = po.r
+    })
+    effect(() => {
+     document.getElementById('g').value = po.g
+    })
+    effect(() => {
+     document.getElementById('b').value = po.b
+    })
+    effect(() => {
+     document.getElementById('color').style.backgroundColor = `rgb(${po.r},${po.g},${po.b})`
+    })
+    document.getElementById('r').addEventListener('input',(e)=>po.r = e.target.value)
+    document.getElementById('g').addEventListener('input',(e)=>po.g = e.target.value)
+    document.getElementById('b').addEventListener('input',(e)=>po.b = e.target.value)
+    function effect(callback) {
+      userReavtive = []
+      callback()
+      console.log(userReavtive)
+
+      for (const reactivity of userReavtive) {
+        if (!callbacks.has(reactivity[0])) {
+          callbacks.set(reactivity[0], new Map())
+        }
+        if (!callbacks.get(reactivity[0]).has(reactivity[1])) {
+          callbacks.get(reactivity[0]).set(reactivity[1], [])
+        }
+        callbacks.get(reactivity[0]).get(reactivity[1]).push(callback)
+      }
+    }
+
+    function reactive(object) {
+      if (reactivity.has(object)) return reactivity.get(object)
+      let proxy = new Proxy(object, {
+        set(object, prop, value) {
+          console.log(object, prop, value)
+          object[prop] = value
+          if (callbacks.get(object)) {
+            if (callbacks.get(object).get(prop)) {
+              for (const callback of callbacks.get(object).get(prop)) {
+                callback()
+              }
+            }
+          }
+          return object[prop]
+        },
+        get(object, prop) {
+          console.log(object, prop)
+          userReavtive.push([object, prop])
+          if (typeof object[prop] === 'object') return reactive(object[prop])
+          return object[prop]
+        }
+
+      })
+      reactivity.set(object, proxy)
+      return proxy
+    }
+  </script>
+</body>
+
+</html>

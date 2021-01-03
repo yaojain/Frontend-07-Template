@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id='container'>文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字
+    文字 文字 文字 文字 文字</div>
+  <div style="display: inline-block;width:100px;height:100px;background: red" id="dragable"></div>
+  <script>
+    let dragable = document.getElementById('dragable')
+    let baseX = 0, baseY = 0
+    dragable.addEventListener('mousedown', function (event) {
+      let startX = event.clientX, satrtY = event.clientY
+      let up = event => {
+        baseX = baseX + event.clientX - startX
+        baseY = baseY + event.clientY - satrtY
+        document.removeEventListener('mousemove', move)
+        document.removeEventListener('mouseup', up)
+      }
+      let move = event => {
+        let range = getNearset(event.clientX,event.clientY)
+        range.insertNode(dragable)
+        dragable.style.transform = `translate(${baseX + event.clientX - startX}px,${baseY + event.clientY - satrtY}px)`
+      }
+      document.addEventListener('mousemove', move)
+      document.addEventListener('mouseup', up)
+    })
+
+    let ranges = []
+    let container = document.getElementById('container')
+    for (let i = 0; i < container.childNodes[0].textContent.length; i++) {
+      let range = document.createRange()
+      range.setStart(container.childNodes[0], i)
+      range.setEnd(container.childNodes[0], i)
+      console.log(range.getBoundingClientRect())
+      ranges.push(range)
+    }
+
+    function getNearset(x,y){
+      let min = Infinity
+      let nearset = null
+      for (const range of ranges) {
+        let rect = range.getBoundingClientRect()
+        let distance = (rect.x - x)**2+(rect.y-y)**2
+        if(distance<min){
+          nearset = range
+          min = distance
+        }
+      }
+      return nearset
+    }
+
+    document.addEventListener('selectstart',e=>e.preventDefault())
+  </script>
+</body>
+
+</html>
