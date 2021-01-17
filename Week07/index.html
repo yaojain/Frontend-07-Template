@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #main {
+      width: 100vw;
+      height: 90vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="main"></div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.0.0/echarts.min.js"></script>
+<script>
+
+  const echarts = window.echarts
+
+  let myChart = echarts.init(document.getElementById('main'));
+
+  var data = {
+    "name": "Realm",
+    "children": [
+        {
+            "name": "宿主对象",
+            "children": [
+                {"name": "Window"},
+                {"name": "Document"},
+                {"name": "其他"}
+            ]
+        },
+        {
+            "name": "本地对象",
+            "children": [
+                {"name": "Object"},
+                {"name": "Array"},
+                {"name": "Date"},
+                {"name": "RegExp"},
+                {"name": "Function"},
+                {"name": "Boolean"},
+                {"name": "Number"},
+                {"name": "String"}
+           ]
+        },
+        {
+            "name": "内置对象",
+            "children": [
+                {"name": "Global"},
+                {"name": "Math"}
+           ]
+        }
+    ]
+};
+  myChart.setOption(option = {
+    tooltip: {
+        trigger: 'item',
+        triggerOn: 'mousemove'
+    },
+    series:[
+        {
+            type: 'tree',
+            name: 'tree2',
+            data: [data],
+            top: '20%',
+            left: '10%',
+            bottom: '22%',
+            right: '66%',
+
+            symbolSize: 7,
+
+            label: {
+                position: 'left',
+                verticalAlign: 'middle',
+                align: 'right'
+            },
+
+            leaves: {
+                label: {
+                    position: 'right',
+                    verticalAlign: 'middle',
+                    align: 'left'
+                }
+            },
+
+            expandAndCollapse: true,
+            animationDuration: 550,
+            animationDurationUpdate: 750
+        }
+    ]
+});
+
+</script>
+
+</html>
